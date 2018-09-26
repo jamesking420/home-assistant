@@ -1,0 +1,127 @@
+
+input_boolean:
+  lounge_dim:
+    name: Lounge Dim
+    initial: off
+    
+script:
+  dim_light_lounge:
+    sequence:
+
+      - condition: state
+        entity_id: input_boolean.lounge_dim
+        state: 'on'
+    
+      - service: light.turn_on
+        entity_id: light.lightgrouplounge
+        data_template:
+          brightness: '{{states.light.lightgrouplounge.attributes.brightness - 20}}'
+
+      - service: script.turn_off
+        entity_id: script.dim_light_lounge
+
+      - service: script.turn_on
+        entity_id: script.dim_light_lounge
+
+  brighten_light_lounge:
+    sequence:
+
+      - condition: state
+        entity_id: input_boolean.lounge_dim
+        state: 'off'
+
+      - service: light.turn_on
+        entity_id: light.lightgrouplounge
+        data_template:
+          brightness: '{{states.light.lightgrouplounge.attributes.brightness + 20}}'
+  
+      - service: script.turn_off
+        entity_id: script.brighten_light_lounge
+
+      - service: script.turn_on
+        entity_id: script.brighten_light_lounge
+
+automation:     
+  - alias: xiaomi lounge brighten on
+    initial_state: 'on'
+    trigger:
+      - platform: event
+        event_type: deconz_event
+        event_data:
+          id: lumisensor_switch
+          event: 1000
+    condition:
+      condition: and
+      conditions:
+      - condition: state
+        entity_id: input_boolean.lounge_dim
+        state: 'off'
+      - condition: state
+        entity_id: light.lightgrouplounge
+        state: 'on'
+    action:
+      - service: script.turn_on
+        entity_id: script.brighten_light_lounge
+          
+  - alias: xiaomi lounge brighten off
+    initial_state: 'on'
+    trigger:
+      - platform: event
+        event_type: deconz_event
+        event_data:
+          id: lumisensor_switch
+          event: 1002
+    condition:
+      condition: and
+      conditions:
+      - condition: state
+        entity_id: input_boolean.lounge_dim
+        state: 'off'
+      - condition: state
+        entity_id: light.lightgrouplounge
+        state: 'on'
+    action:
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.lounge_dim
+          
+  - alias: xiaomi lounge dim on
+    initial_state: 'on'
+    trigger:
+      - platform: event
+        event_type: deconz_event
+        event_data:
+          id: lumisensor_switch
+          event: 1000
+    condition:
+      condition: and
+      conditions:
+        - condition: state
+          entity_id: input_boolean.lounge_dim
+          state: 'on'
+        - condition: state
+          entity_id: light.lightgrouplounge
+          state: 'on'
+    action:
+      - service: script.turn_on
+        entity_id: script.dim_light_lounge
+
+  - alias: xiaomi lounge brighten off
+    initial_state: 'on'
+    trigger:
+      - platform: event
+        event_type: deconz_event
+        event_data:
+          id: lumisensor_switch
+          event: 1002
+    condition:
+      condition: and
+      conditions:
+        - condition: state
+          entity_id: input_boolean.lounge_dim
+          state: 'on'
+        - condition: state
+          entity_id: light.lightgrouplounge
+          state: 'on'
+    action:
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.lounge_dim
