@@ -1,0 +1,120 @@
+- initial_state: on
+  alias: Katy Arrives Home
+  trigger:
+    platform: state
+    entity_id: device_tracker.katy_phone
+    from: 'not_home'
+    to: 'home'
+  action:
+    service: notify.ios_katy_phone
+    data:
+      message: "You're home! Unlock the door?" 
+      data:
+        push:
+            category: "lock"
+            
+- initial_state: on
+  alias: "Request Katy's Location"
+  trigger:
+    platform: event
+    event_type: ios.notification_action_fired
+    event_data:
+      actionName: IGNORE
+  action:
+    service: notify.ios_katy_phone
+    data:
+      message: "request_location_update"
+   
+- alias: unlock door from notification
+  initial_state: 'on'
+  trigger:
+    - platform: event
+      event_type: html5_notification.clicked
+      event_data:
+        action: openfrontdoor
+    - platform: event
+      event_type: ios.notification_action_fired
+      event_data:
+        actionName: UNLOCK_DOOR
+  action:
+    - service: lock.unlock
+      entity_id: lock.front_door_lock
+      
+- alias: lock door from notification
+  initial_state: 'on'
+  trigger:
+    platform: event
+    event_type: html5_notification.clicked
+    event_data:
+      action: lockfrontdoor
+  action:
+    - service: lock.lock
+      entity_id: lock.front_door_lock
+
+- alias: Notify Door Jammed
+  trigger:
+    platform: state
+    entity_id: sensor.lock_status
+    to: 'Deadbolt Jammed'
+  action:
+    - service: notify.jamesphone
+      data_template:
+        target: james_op5
+        title: "Front door lock"
+        message: "Front Door {{ lock.front_door_lock.state }} - {{ trigger.to_state.state }}!"
+        data:
+          tag: "lock_status"
+          icon: "/local/icons/key.png"
+          badge: "/local/icons/key.png"
+    - service: notify.ios_katy_phone
+      data_template:
+        message: "Front door {{ trigger.to_state.state }}!"
+        title: 'Front door lock'
+
+- alias: Notify Door unlock
+  trigger:
+    platform: state
+    entity_id: lock.front_door_lock
+  action:
+    service: notify.jamesphone
+    data_template:
+      target: james_op5
+      title: "Front door lock"
+      message: "Front door {{ trigger.to_state.state }} - {{trigger.to_state.attributes.lock_status|replace('user 2','Terry')|replace('user 3','Katy') }}"
+      data:
+        tag: "lock_status"
+        icon: "/local/icons/key.png"
+        badge: "/local/icons/key.png"
+
+
+- initial_state: 'on'
+  alias: 'Someone arrives at home'
+  trigger:
+    platform: state
+    entity_id: device_tracker.james_phone, device_tracker.katy_phone
+    from: 'not_home'
+    to: 'home'
+  action: 
+    - service: notify.jamesphone
+      data_template:
+        target: james_op5
+        title: "At the house"
+        message: "{{ trigger.entity_id|replace('device_tracker.', '')|replace('_phone', '')|capitalize}} is home"
+        data:
+          icon: "/local/images/{{ trigger.entity_id|replace('device_tracker.','')|replace('_phone','') }}-256x256.jpg"
+          badge: "/local/icons/home.png"
+          tag: "{{ trigger.entity_id|replace('device_tracker.', '')|replace('_phone', '')|capitalize}} movement"
+          actions:
+             - action: openfrontdoor
+               icon: "/local/icons/home.png"
+               title: "Unlock Door"
+             - action: lockfrontdoor
+               icon: "/local/icons/home.png"
+               title: "Lock Door"
+    - condition: or
+      conditions:
+        - condition: sun
+          after: sunset
+        - condition: sun
+          before: sunrise
+    - service: script.comp_script_turn_porch_on_then_off_after_60
