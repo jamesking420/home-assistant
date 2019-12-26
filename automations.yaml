@@ -2,16 +2,16 @@
   alias: Katy Arrives Home
   trigger:
     platform: state
-    entity_id: device_tracker.katy_phone
+    entity_id: person.katy
     from: 'not_home'
     to: 'home'
   action:
-    service: notify.ios_katy_phone
+    service: notify.mobile_app_jameswan
     data:
       message: "You're home! Unlock the door?" 
       data:
         push:
-            category: "lock"
+          category: "lock"
             
 - initial_state: on
   alias: "Request Katy's Location"
@@ -21,7 +21,7 @@
     event_data:
       actionName: IGNORE
   action:
-    service: notify.ios_katy_phone
+    service: notify.mobile_app_jameswan
     data:
       message: "request_location_update"
    
