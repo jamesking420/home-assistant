@@ -1,0 +1,19 @@
+#enables push on ios
+ios:
+  push:
+    categories:
+      - name: Lock
+        identifier: 'lock'
+        actions:
+          - identifier: 'UNLOCK_DOOR'
+            title: 'Unlock Door'
+            activationMode: 'background'
+            authenticationRequired: yes
+            destructive: no
+            behavior: 'default'
+          - identifier: 'IGNORE'
+            title: 'Ignore'
+            activationMode: 'background'
+            authenticationRequired: no
+            destructive: no
+            behavior: 'default'
