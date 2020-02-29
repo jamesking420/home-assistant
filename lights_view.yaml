@@ -1,0 +1,72 @@
+icon: mdi:lightbulb
+title: Lights
+path: lights
+id: lights
+cards:
+
+  - type: conditional
+    conditions:
+      - entity: input_boolean.auto_turn_off_downstairs_lights
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - input_boolean.auto_turn_off_downstairs_lights
+        - input_datetime.downstairs_light_off_autotime
+  - type: entities
+    title: Downstairs Lights
+#    show_header_toggle: false
+    entities:
+      - entity: light.dininghue
+        type: custom:slider-entity-row
+        toggle: true
+      - light.driveway
+      - entity: light.kitchen_fibaro
+        type: custom:slider-entity-row
+        toggle: true
+      - entity: light.family_room
+        type: custom:slider-entity-row
+        toggle: true
+      - entity: light.hallwayhue
+        type: custom:slider-entity-row
+        toggle: true
+      - type: custom:fold-entity-row
+        head:
+          entity: light.loungelights
+          type: custom:slider-entity-row
+          toggle: true
+        entities:
+          - entity: light.lightgrouplounge
+            type: custom:slider-entity-row
+            toggle: true
+          - entity: light.loungebloom
+            type: custom:slider-entity-row
+            toggle: true
+      - light.porch
+
+
+  - type: entities
+    title: Upstairs Lights
+    entities:
+      - light.bathroom
+      - entity: light.bedroomcolourhue
+        type: custom:slider-entity-row
+        toggle: true
+      - entity: light.landinghue
+        type: custom:slider-entity-row
+        toggle: true
+      - type: custom:fold-entity-row
+        head:
+          entity: light.lightgroupnursery
+          type: custom:slider-entity-row
+          toggle: true
+        entities:
+          - entity: light.nurserycolourhue
+            type: custom:slider-entity-row
+            toggle: true
+          - entity: light.nurserybloom
+            type: custom:slider-entity-row
+            toggle: true
+      - entity: light.studycolourhue
+        type: custom:slider-entity-row
+        toggle: true
